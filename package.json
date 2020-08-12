@@ -1,6 +1,6 @@
 {
   "name": "@recognizebv/capacitor-plugin-msauth",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "This plugin enables MSAL support for Capacitor.",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
@@ -17,9 +17,9 @@
   "author": "Recognize",
   "license": "MIT",
   "devDependencies": {
-    "@capacitor/android": "^2.2.0",
-    "@capacitor/core": "^2.2.0",
-    "@capacitor/ios": "^2.2.0",
+    "@capacitor/android": "^2.1.0",
+    "@capacitor/core": "^2.1.0",
+    "@capacitor/ios": "^2.1.0",
     "@ionic/prettier-config": "^1.0.0",
     "@ionic/swiftlint-config": "^1.0.0",
     "@rollup/plugin-node-resolve": "^8.1.0",
@@ -31,7 +31,7 @@
     "typescript": "~3.8.3"
   },
   "peerDependencies": {
-    "@capacitor/core": "^2.2.0"
+    "@capacitor/core": "^2.1.0"
   },
   "files": [
     "dist/",
