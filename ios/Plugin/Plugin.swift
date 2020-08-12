@@ -147,7 +147,7 @@ public class MsAuthPlugin: CAPPlugin {
                 return
             }
                 
-            completion(result.idToken)
+            completion(result.accessToken)
         }
     }
     
@@ -183,7 +183,7 @@ public class MsAuthPlugin: CAPPlugin {
                    return
                }
                    
-               completion(result.idToken)
+               completion(result.accessToken)
            }
        }
 }
