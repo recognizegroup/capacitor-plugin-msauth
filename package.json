@@ -1,6 +1,6 @@
 {
   "name": "@recognizebv/capacitor-plugin-msauth",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "This plugin enables MSAL support for Capacitor.",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",

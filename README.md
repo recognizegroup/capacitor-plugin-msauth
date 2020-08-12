@@ -5,7 +5,7 @@ This plugin contains an implementation of MSAL for Capacitor. At this moment, on
 * `yarn add @recognizebv/capacitor-plugin-msauth`
 * `npx cap sync`
 * Create an app registration
-* In the app registration, click 'Try out the new experience', and then press New registration > Add a platform > iOS/macOS.
+* In the app registration, go to Authentication, and then Add platform, and then iOS/macOS
 * You will be asked for a bundle identifier, which you can find in Xcode (under the General tab of your project)
 * (iOS) Add a new keychain group to your project Signing & Capabilities. The keychain group should be `com.microsoft.adalcache`
 * (iOS) Configure URL-schemes by adding the following to your `Info.plist` file:
