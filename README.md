@@ -25,3 +25,33 @@ This plugin contains an implementation of MSAL for Capacitor. At this moment, on
     <string>msauthv3</string>
 </array>
 ```
+
+## Usage
+Usage of the plugin is fairly simple, as it has just two methods: `login` and `logout`.
+
+### Login
+```typescript
+import {Plugins} from '@capacitor/core';
+
+const {MsAuthPlugin} = Plugins;
+
+const result = await MsAuthPlugin.login({
+    clientId: '<client id>',
+    tenant: '<tenant, defaults to common>',
+    scopes: '<scopes, defaults to no scopes>',
+});
+
+const accessToken = result.accessToken;
+```
+
+### Logout
+```typescript
+import {Plugins} from '@capacitor/core';
+
+const {MsAuthPlugin} = Plugins;
+
+await MsAuthPlugin.logout({
+    clientId: '<client id>',
+    tenant: '<tenant, defaults to common>',
+});
+```

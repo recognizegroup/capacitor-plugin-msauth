@@ -1,10 +1,11 @@
 {
   "name": "@recognizebv/capacitor-plugin-msauth",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "This plugin enables MSAL support for Capacitor.",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
+  "private": false,
   "scripts": {
     "lint": "npm run prettier -- --check && npm run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
