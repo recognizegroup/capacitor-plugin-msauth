@@ -1,6 +1,6 @@
 {
   "name": "@recognizebv/capacitor-plugin-msauth",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "This plugin enables MSAL support for Capacitor.",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
@@ -16,7 +16,7 @@
     "prepublishOnly": "npm run build"
   },
   "author": "Recognize",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "devDependencies": {
     "@capacitor/android": "^2.1.0",
     "@capacitor/core": "^2.1.0",
