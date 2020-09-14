@@ -186,12 +186,15 @@ public class MsAuthPlugin: CAPPlugin {
                completion(result.accessToken)
            }
        }
+
+    static public func checkAppOpen(url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
+    }
 }
 
 extension UIApplicationDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-            
-            return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
+        return MsAuthPlugin.checkAppOpen(url: url, options: options)
     }
 }
 

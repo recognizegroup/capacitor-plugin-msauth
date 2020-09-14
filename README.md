@@ -25,6 +25,12 @@ This plugin contains an implementation of MSAL for Capacitor. At this moment, on
     <string>msauthv3</string>
 </array>
 ```
+* iOS if your app's AppDelegate already implements a `application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool` function, you should add the following code inside this method:
+```swift
+if MsAuthPlugin.checkAppOpen(url: url, options: options) == true {
+    return true
+}
+```
 
 ## Usage
 Usage of the plugin is fairly simple, as it has just two methods: `login` and `logout`.
