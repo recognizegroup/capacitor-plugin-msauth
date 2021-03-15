@@ -5,6 +5,6 @@ declare module '@capacitor/core' {
 }
 
 export interface MsAuthPluginPlugin {
-  login(options: { clientId: string, tenant?: string, scopes?: string[] }): Promise<{ accessToken: string }>;
-  logout(options: { clientId: string, tenant?: string }): Promise<{ accessToken: string }>;
+  login(options: { clientId: string, tenant?: string, scopes?: string[], keyHash?: string }): Promise<{ accessToken: string }>;
+  logout(options: { clientId: string, tenant?: string, keyHash?: string }): Promise<void>;
 }

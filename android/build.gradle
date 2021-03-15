@@ -34,6 +34,10 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    packagingOptions {
+        exclude("META-INF/jersey-module-version")
+    }
 }
 
 repositories {
@@ -46,6 +50,8 @@ repositories {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
+    implementation 'com.microsoft.identity.client:msal:2.+'
+    implementation 'com.microsoft.graph:microsoft-graph:1.5.+'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

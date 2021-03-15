@@ -62,5 +62,7 @@
   "bugs": {
     "url": "git@bitbucket.org:recognize/capacitor-plugin-msauth.git/issues"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@azure/msal-browser": "^2.12.0"
+  }
 }
