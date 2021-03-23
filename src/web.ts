@@ -12,7 +12,7 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
   constructor() {
     super({
       name: 'MsAuthPlugin',
-      platforms: ['ios', 'android', 'web'],
+      platforms: ['web'],
     });
   }
 

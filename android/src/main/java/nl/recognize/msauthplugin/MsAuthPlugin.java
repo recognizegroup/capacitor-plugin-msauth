@@ -113,7 +113,7 @@ public class MsAuthPlugin extends Plugin {
         if (context.getCurrentAccount().getCurrentAccount() == null) {
             this.acquireTokenInteractively(context, scopes, callback);
         } else {
-            IAuthenticationResult silentAuthResult = context.acquireTokenSilent((String[]) scopes.toArray(), authority);
+            IAuthenticationResult silentAuthResult = context.acquireTokenSilent(scopes.toArray(new String[0]), authority);
 
             callback.tokenReceived(silentAuthResult.getAccessToken());
         }

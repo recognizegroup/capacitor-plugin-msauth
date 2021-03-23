@@ -51,6 +51,19 @@ if MsAuthPlugin.checkAppOpen(url: url, options: options) == true {
 
 Note that there are two placeholders, one for you package name and one for the key hash.
 
+* (Android) Add the following snippet to the `build.gradle` file in the `android/` folder
+```gradle
+allprojects {
+    repositories {
+        maven {
+            url 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+        }
+    }
+}
+```
+
+* (Android) Register the plugin in the main activity
+
 ## Usage
 Usage of the plugin is fairly simple, as it has just two methods: `login` and `logout`.
 
