@@ -1,12 +1,11 @@
 import { WebPlugin } from '@capacitor/core';
 import { MsAuthPluginPlugin } from './definitions';
 
-interface BaseOptions { clientId: string; tenant?: string; scopes?: string[], keyHash?: string, }
+interface BaseOptions { clientId: string; tenant?: string; scopes?: string[], keyHash?: string, redirectUri?: string, }
 interface LogoutOptions extends BaseOptions {
 }
 interface LoginOptions extends BaseOptions {
   scopes: string[];
-  redirectUri?: string;
 }
 
 export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
@@ -39,7 +38,7 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     }
   }
 
-  private createContext(options: LoginOptions) {
+  private createContext(options: BaseOptions) {
     const config = {
       auth: {
         clientId: options.clientId,
