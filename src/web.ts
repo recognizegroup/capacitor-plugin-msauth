@@ -1,7 +1,7 @@
 import { WebPlugin } from '@capacitor/core';
 import { MsAuthPluginPlugin } from './definitions';
 
-interface BaseOptions { clientId: string; tenant?: string; scopes?: string[], keyHash?: string }
+interface BaseOptions { clientId: string; tenant?: string; scopes?: string[], keyHash?: string, redirectUri?: string, }
 interface LogoutOptions extends BaseOptions {
 }
 interface LoginOptions extends BaseOptions {
@@ -42,11 +42,16 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     const config = {
       auth: {
         clientId: options.clientId,
-        authority: `https://login.microsoftonline.com/${options.tenant ?? 'common'}`
+        authority: `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
+        redirectUri: options.redirectUri ?? this.getCurrentUrl()
       }
     };
 
     return new PublicClientApplication(config);
+  }
+
+  private getCurrentUrl(): string {
+    return window.location.href.split(/[?#]/)[0];
   }
 
   private async acquireTokenInteractively(context: PublicClientApplication, scopes: string[]): Promise<string> {
