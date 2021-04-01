@@ -20,7 +20,11 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     const context = this.createContext(options);
 
     try {
-      return { accessToken: await this.acquireTokenSilently(context, options.scopes) };
+      const accessToken = await this.acquireTokenSilently(context, options.scopes)
+        .catch(() => this.acquireTokenInteractively(context, options.scopes));
+
+      return {accessToken};
+
     } catch (error) {
       console.error('MSAL: Error occurred while logging in', error);
 
@@ -44,6 +48,9 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
         clientId: options.clientId,
         authority: `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
         redirectUri: options.redirectUri ?? this.getCurrentUrl()
+      },
+      cache: {
+        cacheLocation: 'localStorage'
       }
     };
 
@@ -64,15 +71,12 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
   }
 
   private async acquireTokenSilently(context: PublicClientApplication, scopes: string[]): Promise<string> {
-    if (context.getActiveAccount() == null) {
-      return this.acquireTokenInteractively(context, scopes);
-    } else {
-      const result = await context.acquireTokenSilent({
-        scopes,
-      });
+    const result = await context.acquireTokenSilent({
+      scopes,
+      account: context.getAllAccounts()[0],
+    });
 
-      return result.accessToken;
-    }
+    return result.accessToken;
   }
 }
 
