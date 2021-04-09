@@ -35,7 +35,7 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
   logout(options: LogoutOptions): Promise<void> {
     const context = this.createContext(options);
 
-    if (context.getActiveAccount() == null) {
+    if (!context.getAllAccounts()[0]) {
       return Promise.reject('Nothing to sign out from.');
     } else {
       return context.logout();
