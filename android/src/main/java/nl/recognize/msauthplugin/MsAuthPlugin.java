@@ -3,10 +3,10 @@ package nl.recognize.msauthplugin;
 import androidx.annotation.NonNull;
 
 import com.getcapacitor.JSObject;
-import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
 import com.microsoft.identity.client.AcquireTokenParameters;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAuthenticationResult;
@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
-@NativePlugin
+@CapacitorPlugin(
+    name = "MsAuthPlugin"
+)
 public class MsAuthPlugin extends Plugin {
 
     @PluginMethod
@@ -82,27 +84,27 @@ public class MsAuthPlugin extends Plugin {
 
     private void acquireTokenInteractively(ISingleAccountPublicClientApplication context, List<String> scopes, final TokenResultCallback callback) {
         AcquireTokenParameters.Builder params = new AcquireTokenParameters.Builder()
-                .startAuthorizationFromActivity(this.getActivity())
-                .withScopes(scopes)
-                .withPrompt(Prompt.SELECT_ACCOUNT)
-                .withCallback(new AuthenticationCallback() {
-                    @Override
-                    public void onCancel() {
-                        System.out.println("Login cancelled.");
-                        callback.tokenReceived(null);
-                    }
+            .startAuthorizationFromActivity(this.getActivity())
+            .withScopes(scopes)
+            .withPrompt(Prompt.SELECT_ACCOUNT)
+            .withCallback(new AuthenticationCallback() {
+                @Override
+                public void onCancel() {
+                    System.out.println("Login cancelled.");
+                    callback.tokenReceived(null);
+                }
 
-                    @Override
-                    public void onSuccess(IAuthenticationResult authenticationResult) {
-                        callback.tokenReceived(authenticationResult.getAccessToken());
-                    }
+                @Override
+                public void onSuccess(IAuthenticationResult authenticationResult) {
+                    callback.tokenReceived(authenticationResult.getAccessToken());
+                }
 
-                    @Override
-                    public void onError(MsalException e) {
-                        e.printStackTrace();
-                        callback.tokenReceived(null);
-                    }
-                });
+                @Override
+                public void onError(MsalException e) {
+                    e.printStackTrace();
+                    callback.tokenReceived(null);
+                }
+            });
 
         context.acquireToken(params.build());
     }
@@ -123,28 +125,55 @@ public class MsAuthPlugin extends Plugin {
         String clientId = call.getString("clientId");
         String tenant = call.getString("tenant");
         String keyHash = call.getString("keyHash");
+        String authorityTypeString = call.getString("authorityType", "AAD");
+        String authorityUrl = call.getString("authorityUrl");
 
         if (keyHash == null || keyHash.length() == 0) {
             call.reject("Invalid key hash specified.");
             return null;
         }
 
-        return this.createContext(clientId, tenant, keyHash);
+        AuthorityType authorityType;
+        if (authorityTypeString.equals("AAD")) {
+            authorityType = AuthorityType.AAD;
+        } else if (authorityTypeString.equals("B2C")) {
+            authorityType = AuthorityType.B2C;
+        } else {
+            call.reject("Invalid authorityType specified. Only AAD and B2C are supported.");
+            return null;
+        }
+
+        return this.createContext(clientId, tenant, authorityType, authorityUrl, keyHash);
     }
 
-    private ISingleAccountPublicClientApplication createContext(String clientId, String tenant, String keyHash) throws MsalException, InterruptedException, IOException, JSONException {
+    private ISingleAccountPublicClientApplication createContext(
+        String clientId,
+        String tenant,
+        AuthorityType authorityType,
+        String customAuthorityUrl,
+        String keyHash
+    ) throws MsalException, InterruptedException, IOException, JSONException {
         String tenantId = (tenant != null ? tenant : "common");
-        String authorityUrl =  "https://login.microsoftonline.com/" + tenantId;
-
+        String authorityUrl = customAuthorityUrl != null ? customAuthorityUrl : "https://login.microsoftonline.com/" + tenantId;
         String urlEncodedKeyHash = URLEncoder.encode(keyHash, "UTF-8");
         String redirectUri = "msauth://" + getActivity().getApplicationContext().getPackageName() + "/" + urlEncodedKeyHash;
 
         JSONObject authorityConfig = new JSONObject();
-        authorityConfig.put("type", "AAD");
-        authorityConfig.put("authority_url", authorityUrl);
-        authorityConfig.put("audience", (new JSONObject())
-            .put("type", "AzureADMultipleOrgs")
-            .put("tenant_id", tenantId));
+
+        switch (authorityType) {
+            case AAD:
+                authorityConfig.put("type", "AAD");
+                authorityConfig.put("authority_url", authorityUrl);
+                authorityConfig.put("audience", (new JSONObject())
+                    .put("type", "AzureADMultipleOrgs")
+                    .put("tenant_id", tenantId));
+                break;
+            case B2C:
+                authorityConfig.put("type", "B2C");
+                authorityConfig.put("authority_url", authorityUrl);
+                authorityConfig.put("default", "true");
+                break;
+        }
 
         JSONObject configFile = new JSONObject();
         configFile.put("client_id", clientId);

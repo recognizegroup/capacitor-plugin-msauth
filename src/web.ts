@@ -1,11 +1,16 @@
-import { WebPlugin } from '@capacitor/core';
-import { MsAuthPluginPlugin } from './definitions';
+import {WebPlugin} from '@capacitor/core';
+import {BaseOptions, MsAuthPluginPlugin} from './definitions';
+import {PublicClientApplication} from "@azure/msal-browser";
 
-interface BaseOptions { clientId: string; tenant?: string; scopes?: string[], keyHash?: string, redirectUri?: string, }
-interface LogoutOptions extends BaseOptions {
+interface WebBaseOptions extends BaseOptions {
+  redirectUri?: string,
 }
-interface LoginOptions extends BaseOptions {
+
+interface WebLoginOptions extends WebBaseOptions {
   scopes: string[];
+}
+
+interface WebLogoutOptions extends WebBaseOptions {
 }
 
 export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
@@ -16,7 +21,7 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     });
   }
 
-  async login(options: LoginOptions): Promise<{ accessToken: string }> {
+  async login(options: WebLoginOptions): Promise<{ accessToken: string }> {
     const context = this.createContext(options);
 
     try {
@@ -32,7 +37,7 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     }
   }
 
-  logout(options: LogoutOptions): Promise<void> {
+  logout(options: WebLogoutOptions): Promise<void> {
     const context = this.createContext(options);
 
     if (!context.getAllAccounts()[0]) {
@@ -42,11 +47,12 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     }
   }
 
-  private createContext(options: BaseOptions) {
+  private createContext(options: WebBaseOptions) {
     const config = {
       auth: {
         clientId: options.clientId,
-        authority: `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
+        authority: options.authorityUrl ?? `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
+        knownAuthorities: options.knownAuthorities,
         redirectUri: options.redirectUri ?? this.getCurrentUrl()
       },
       cache: {
@@ -82,8 +88,4 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
 
 const MsAuthPlugin = new MsAuthPluginWeb();
 
-export { MsAuthPlugin };
-
-import { registerWebPlugin } from '@capacitor/core';
-import {PublicClientApplication} from "@azure/msal-browser";
-registerWebPlugin(MsAuthPlugin);
+export {MsAuthPlugin};
