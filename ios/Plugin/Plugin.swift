@@ -41,6 +41,11 @@ public class MsAuthPlugin: CAPPlugin {
             return
         }
         
+        guard let bridgeViewController = self.bridge?.viewController else {
+            call.reject("Unable to get Capacitor bridge.viewController")
+            return
+        }
+        
         self.loadCurrentAccount(applicationContext: context) { (account) in
             guard let currentAccount = account else {
                 call.reject("Nothing to sign-out from.")
@@ -48,7 +53,7 @@ public class MsAuthPlugin: CAPPlugin {
             }
             
             do {
-                let wvParameters = MSALWebviewParameters(authPresentationViewController: self.bridge.viewController)
+                let wvParameters = MSALWebviewParameters(authPresentationViewController: bridgeViewController)
                 let signoutParameters = MSALSignoutParameters(webviewParameters: wvParameters)
                 signoutParameters.signoutFromBrowser = false // set this to true if you also want to signout from browser or webview
                 
@@ -73,8 +78,15 @@ public class MsAuthPlugin: CAPPlugin {
             return nil
         }
         let tenant = call.getString("tenant")
+        let authorityURL = call.getString("authorityUrl")
+        let authorityType = call.getString("authorityType") ?? "AAD"
         
-        guard let context = self.createContext(clientId: clientId, tenant: tenant) else {
+        if (authorityType != "AAD" && authorityType != "B2C") {
+            call.reject("authorityType must be one of 'AAD' or 'B2C'")
+            return nil
+        }
+        
+        guard let context = self.createContext(clientId: clientId, tenant: tenant, authorityType: AuthorityType(rawValue: authorityType)!, customAuthorityURL: authorityURL) else {
             call.reject("Unable to create context, check logs")
             return nil
         }
@@ -82,17 +94,19 @@ public class MsAuthPlugin: CAPPlugin {
         return context
     }
     
-    private func createContext(clientId: String, tenant: String?) -> MSALPublicClientApplication? {
-        guard let authorityURL = URL(string: "https://login.microsoftonline.com/\(tenant ?? "common")") else {
-            print("Invalid tenant specified")
+    private func createContext(clientId: String, tenant: String?, authorityType: AuthorityType, customAuthorityURL: String?) -> MSALPublicClientApplication? {
+        guard let authorityURL = URL(string: customAuthorityURL ?? "https://login.microsoftonline.com/\(tenant ?? "common")") else {
+            print("Invalid authorityUrl or tenant specified")
             
             return nil
         }
         
         do {
-            let authority = try MSALAADAuthority(url: authorityURL)
-            
+            let authority = authorityType == .AAD
+                ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
+
             let msalConfiguration = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
+            msalConfiguration.knownAuthorities = [authority]
             return try MSALPublicClientApplication(configuration: msalConfiguration)
         } catch {
             print(error)
@@ -127,9 +141,17 @@ public class MsAuthPlugin: CAPPlugin {
     }
     
     func acquireTokenInteractively(applicationContext: MSALPublicClientApplication, scopes: [String], completion: @escaping (String?) -> Void) {
-        let wvParameters = MSALWebviewParameters(authPresentationViewController: self.bridge.viewController)
+        guard let bridgeViewController = self.bridge?.viewController else {
+            print("Unable to get Capacitor bridge.viewController")
+            
+            completion(nil)
+            return
+        }
+        
+        let wvParameters = MSALWebviewParameters(authPresentationViewController: bridgeViewController)
             
         let parameters = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: wvParameters)
+ 
         parameters.promptType = .selectAccount
             
         applicationContext.acquireToken(with: parameters) { (result, error) in
@@ -190,6 +212,11 @@ public class MsAuthPlugin: CAPPlugin {
     static public func checkAppOpen(url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
     }
+}
+
+enum AuthorityType: String {
+    case AAD
+    case B2C
 }
 
 extension UIApplicationDelegate {
