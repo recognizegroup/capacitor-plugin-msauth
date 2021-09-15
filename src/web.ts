@@ -1,5 +1,5 @@
 import {WebPlugin} from '@capacitor/core';
-import {BaseOptions, MsAuthPluginPlugin} from './definitions';
+import {BaseOptions, MsAuthPlugin} from './definitions';
 import {PublicClientApplication} from "@azure/msal-browser";
 
 interface WebBaseOptions extends BaseOptions {
@@ -13,7 +13,13 @@ interface WebLoginOptions extends WebBaseOptions {
 interface WebLogoutOptions extends WebBaseOptions {
 }
 
-export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
+interface AuthResult {
+  accessToken: string;
+  idToken: string;
+  scopes: string[];
+}
+
+export class MsAuthPluginWeb extends WebPlugin implements MsAuthPlugin {
   constructor() {
     super({
       name: 'MsAuthPlugin',
@@ -21,15 +27,12 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     });
   }
 
-  async login(options: WebLoginOptions): Promise<{ accessToken: string }> {
+  async login(options: WebLoginOptions): Promise<AuthResult> {
     const context = this.createContext(options);
 
     try {
-      const accessToken = await this.acquireTokenSilently(context, options.scopes)
-        .catch(() => this.acquireTokenInteractively(context, options.scopes));
-
-      return {accessToken};
-
+      return await this.acquireTokenSilently(context, options.scopes)
+          .catch(() => this.acquireTokenInteractively(context, options.scopes));
     } catch (error) {
       console.error('MSAL: Error occurred while logging in', error);
 
@@ -67,22 +70,22 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPluginPlugin {
     return window.location.href.split(/[?#]/)[0];
   }
 
-  private async acquireTokenInteractively(context: PublicClientApplication, scopes: string[]): Promise<string> {
-    const result = await context.acquireTokenPopup({
+  private async acquireTokenInteractively(context: PublicClientApplication, scopes: string[]): Promise<AuthResult> {
+    const {accessToken, idToken} = await context.acquireTokenPopup({
       scopes,
       prompt: 'select_account',
     });
 
-    return result.accessToken;
+    return {accessToken, idToken, scopes};
   }
 
-  private async acquireTokenSilently(context: PublicClientApplication, scopes: string[]): Promise<string> {
-    const result = await context.acquireTokenSilent({
+  private async acquireTokenSilently(context: PublicClientApplication, scopes: string[]): Promise<AuthResult> {
+    const {accessToken, idToken} = await context.acquireTokenSilent({
       scopes,
       account: context.getAllAccounts()[0],
     });
 
-    return result.accessToken;
+    return {accessToken, idToken, scopes};
   }
 }
 

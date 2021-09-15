@@ -14,8 +14,7 @@ export interface LoginOptions extends BaseOptions {
 export interface LogoutOptions extends BaseOptions {
 }
 
-export interface MsAuthPluginPlugin {
-  login(options: LoginOptions): Promise<{ accessToken: string }>;
-
+export interface MsAuthPlugin {
+  login(options: LoginOptions): Promise<{ accessToken: string, idToken: string, scopes: string[] }>;
   logout(options: LogoutOptions): Promise<void>;
 }

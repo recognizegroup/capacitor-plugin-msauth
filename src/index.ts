@@ -1,9 +1,9 @@
 import {registerPlugin} from '@capacitor/core';
 import {MsAuthPluginWeb} from './web';
 
-import type {MsAuthPluginPlugin} from './definitions';
+import type {MsAuthPlugin as PluginDefinition} from './definitions';
 
-const MsAuthPlugin = registerPlugin<MsAuthPluginPlugin>('MsAuthPlugin', {
+const MsAuthPlugin = registerPlugin<PluginDefinition>('MsAuthPlugin', {
     web: () => new MsAuthPluginWeb(),
 });
 
