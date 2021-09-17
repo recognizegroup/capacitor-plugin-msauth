@@ -1,7 +1,7 @@
 PODS:
-  - Capacitor (3.0.2):
+  - Capacitor (3.2.2):
     - CapacitorCordova
-  - CapacitorCordova (3.0.2)
+  - CapacitorCordova (3.2.2)
   - MSAL (1.1.19):
     - MSAL/app-lib (= 1.1.19)
   - MSAL/app-lib (1.1.19)
@@ -22,10 +22,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@capacitor/ios"
 
 SPEC CHECKSUMS:
-  Capacitor: df6bc94955ecbe567904f1f2fe09c237f66d0de9
-  CapacitorCordova: e2f9a64e0b1a47b6efed76aecbd042c40b477ee3
+  Capacitor: aa4514ca225c6818f269d5c5d4d010d6eddddde7
+  CapacitorCordova: bdb13b0c6c1d51f5a421a59b78222b24e852d826
   MSAL: 0a4993a743aa45147c78c698e0412d00cb005c1a
 
 PODFILE CHECKSUM: 42bf7b15755196452a35e4da759c35bbca9bfc3d
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.1

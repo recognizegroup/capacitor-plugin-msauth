@@ -9,7 +9,7 @@ import MSAL
 @objc(MsAuthPlugin)
 public class MsAuthPlugin: CAPPlugin {
     @objc func login(_ call: CAPPluginCall) {
-        guard let context = self.createContextFromPluginCall(call) else {
+        guard let context = createContextFromPluginCall(call) else {
             call.reject("Unable to create context, check logs")
             return
         }
@@ -29,7 +29,7 @@ public class MsAuthPlugin: CAPPlugin {
             ])
         }
 
-        self.loadCurrentAccount(applicationContext: context) { (account) in
+        loadCurrentAccount(applicationContext: context) { (account) in
             guard let currentAccount = account else {
                 self.acquireTokenInteractively(applicationContext: context, scopes: scopes, completion: completion)
                 return
@@ -40,17 +40,17 @@ public class MsAuthPlugin: CAPPlugin {
     }
 
     @objc func logout(_ call: CAPPluginCall) {
-        guard let context = self.createContextFromPluginCall(call) else {
+        guard let context = createContextFromPluginCall(call) else {
             call.reject("Unable to create context, check logs")
             return
         }
 
-        guard let bridgeViewController = self.bridge?.viewController else {
+        guard let bridgeViewController = bridge?.viewController else {
             call.reject("Unable to get Capacitor bridge.viewController")
             return
         }
 
-        self.loadCurrentAccount(applicationContext: context) { (account) in
+        loadCurrentAccount(applicationContext: context) { (account) in
             guard let currentAccount = account else {
                 call.reject("Nothing to sign-out from.")
                 return
@@ -61,7 +61,7 @@ public class MsAuthPlugin: CAPPlugin {
                 let signoutParameters = MSALSignoutParameters(webviewParameters: wvParameters)
                 signoutParameters.signoutFromBrowser = false // set this to true if you also want to signout from browser or webview
 
-                context.signout(with: currentAccount, signoutParameters: signoutParameters, completionBlock: {(success, error) in
+                context.signout(with: currentAccount, signoutParameters: signoutParameters, completionBlock: {(_, error) in
                     if let error = error {
                         print("Unable to logout: \(error)")
 
@@ -82,15 +82,18 @@ public class MsAuthPlugin: CAPPlugin {
             return nil
         }
         let tenant = call.getString("tenant")
-let authorityURL = call.getString("authorityUrl")
+        let authorityURL = call.getString("authorityUrl")
         let authorityType = call.getString("authorityType") ?? "AAD"
 
-        if (authorityType != "AAD" && authorityType != "B2C") {
+        if authorityType != "AAD" && authorityType != "B2C" {
             call.reject("authorityType must be one of 'AAD' or 'B2C'")
             return nil
         }
 
-        guard let context = self.createContext(clientId: clientId, tenant: tenant, authorityType: AuthorityType(rawValue: authorityType)!, customAuthorityURL: authorityURL) else {
+        guard let enumAuthorityType = AuthorityType(rawValue: authorityType.lowercased()),
+              let context = createContext(
+                clientId: clientId, tenant: tenant, authorityType: enumAuthorityType, customAuthorityURL: authorityURL
+              ) else {
             call.reject("Unable to create context, check logs")
             return nil
         }
@@ -105,7 +108,7 @@ let authorityURL = call.getString("authorityUrl")
         }
 
         do {
-            let authority = authorityType == .AAD
+            let authority = authorityType == .aad
                 ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
             let msalConfiguration = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
             msalConfiguration.knownAuthorities = [authority]
@@ -123,7 +126,7 @@ let authorityURL = call.getString("authorityUrl")
         let msalParameters = MSALParameters()
         msalParameters.completionBlockQueue = DispatchQueue.main
 
-        applicationContext.getCurrentAccount(with: msalParameters, completionBlock: { (currentAccount, previousAccount, error) in
+        applicationContext.getCurrentAccount(with: msalParameters, completionBlock: { (currentAccount, _, error) in
             if let error = error {
                 print("Unable to query current account: \(error)")
 
@@ -143,7 +146,7 @@ let authorityURL = call.getString("authorityUrl")
     }
 
     func acquireTokenInteractively(applicationContext: MSALPublicClientApplication, scopes: [String], completion: @escaping (MSALResult?) -> Void) {
-        guard let bridgeViewController = self.bridge?.viewController else {
+        guard let bridgeViewController = bridge?.viewController else {
             print("Unable to get Capacitor bridge.viewController")
 
             completion(nil)
@@ -174,55 +177,57 @@ let authorityURL = call.getString("authorityUrl")
         }
     }
 
-    func acquireTokenSilently(applicationContext: MSALPublicClientApplication, scopes: [String], account : MSALAccount!, completion: @escaping (MSALResult?) -> Void) {
-           let parameters = MSALSilentTokenParameters(scopes: scopes, account: account)
+    func acquireTokenSilently(applicationContext: MSALPublicClientApplication, scopes: [String], account: MSALAccount, completion: @escaping (MSALResult?) -> Void) {
+        let parameters = MSALSilentTokenParameters(scopes: scopes, account: account)
 
-           applicationContext.acquireTokenSilent(with: parameters) { (result, error) in
+        applicationContext.acquireTokenSilent(with: parameters) { (result, error) in
 
-               if let error = error {
-                   let nsError = error as NSError
+            if let error = error {
+                let nsError = error as NSError
 
-                   if (nsError.domain == MSALErrorDomain) {
+                if nsError.domain == MSALErrorDomain {
 
-                       if (nsError.code == MSALError.interactionRequired.rawValue) {
-                           DispatchQueue.main.async {
-                               self.acquireTokenInteractively(applicationContext: applicationContext, scopes: scopes, completion: completion)
-                           }
-                           return
-                       }
-                   }
+                    if nsError.code == MSALError.interactionRequired.rawValue {
+                        DispatchQueue.main.async {
+                            self.acquireTokenInteractively(applicationContext: applicationContext, scopes: scopes, completion: completion)
+                        }
+                        return
+                    }
+                }
 
-                    print("Unable to acquire token silently: \(error)")
+                print("Unable to acquire token silently: \(error)")
 
-                    completion(nil)
+                completion(nil)
 
-                   return
-               }
+                return
+            }
 
-               guard let result = result else {
-                   print("Empty result found.")
+            guard let result = result else {
+                print("Empty result found.")
 
-                   completion(nil)
-                   return
-               }
+                completion(nil)
+                return
+            }
 
-               completion(result)
-           }
-       }
+            completion(result)
+        }
+    }
 
-    static public func checkAppOpen(url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String)
+    public static func checkAppOpen(url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        MSALPublicClientApplication.handleMSALResponse(
+            url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String
+        )
     }
 }
 
 enum AuthorityType: String {
-    case AAD
-    case B2C
+    case aad
+    case b2c
 }
 
 extension UIApplicationDelegate {
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        return MsAuthPlugin.checkAppOpen(url: url, options: options)
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        MsAuthPlugin.checkAppOpen(url: url, options: options)
     }
 }
 

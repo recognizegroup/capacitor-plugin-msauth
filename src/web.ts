@@ -1,17 +1,17 @@
-import {WebPlugin} from '@capacitor/core';
-import {BaseOptions, MsAuthPlugin} from './definitions';
-import {PublicClientApplication} from "@azure/msal-browser";
+import { PublicClientApplication } from '@azure/msal-browser';
+import { WebPlugin } from '@capacitor/core';
+
+import type { BaseOptions, MsAuthPlugin } from './definitions';
 
 interface WebBaseOptions extends BaseOptions {
-  redirectUri?: string,
+  redirectUri?: string;
 }
 
 interface WebLoginOptions extends WebBaseOptions {
   scopes: string[];
 }
 
-interface WebLogoutOptions extends WebBaseOptions {
-}
+type WebLogoutOptions = WebBaseOptions;
 
 interface AuthResult {
   accessToken: string;
@@ -19,20 +19,14 @@ interface AuthResult {
   scopes: string[];
 }
 
-export class MsAuthPluginWeb extends WebPlugin implements MsAuthPlugin {
-  constructor() {
-    super({
-      name: 'MsAuthPlugin',
-      platforms: ['web'],
-    });
-  }
-
+export class MsAuth extends WebPlugin implements MsAuthPlugin {
   async login(options: WebLoginOptions): Promise<AuthResult> {
     const context = this.createContext(options);
 
     try {
-      return await this.acquireTokenSilently(context, options.scopes)
-          .catch(() => this.acquireTokenInteractively(context, options.scopes));
+      return await this.acquireTokenSilently(context, options.scopes).catch(() =>
+        this.acquireTokenInteractively(context, options.scopes)
+      );
     } catch (error) {
       console.error('MSAL: Error occurred while logging in', error);
 
@@ -44,7 +38,7 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPlugin {
     const context = this.createContext(options);
 
     if (!context.getAllAccounts()[0]) {
-      return Promise.reject('Nothing to sign out from.');
+      return Promise.reject(new Error('Nothing to sign out from.'));
     } else {
       return context.logout();
     }
@@ -56,11 +50,11 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPlugin {
         clientId: options.clientId,
         authority: options.authorityUrl ?? `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
         knownAuthorities: options.knownAuthorities,
-        redirectUri: options.redirectUri ?? this.getCurrentUrl()
+        redirectUri: options.redirectUri ?? this.getCurrentUrl(),
       },
       cache: {
-        cacheLocation: 'localStorage'
-      }
+        cacheLocation: 'localStorage',
+      },
     };
 
     return new PublicClientApplication(config);
@@ -71,24 +65,20 @@ export class MsAuthPluginWeb extends WebPlugin implements MsAuthPlugin {
   }
 
   private async acquireTokenInteractively(context: PublicClientApplication, scopes: string[]): Promise<AuthResult> {
-    const {accessToken, idToken} = await context.acquireTokenPopup({
+    const { accessToken, idToken } = await context.acquireTokenPopup({
       scopes,
       prompt: 'select_account',
     });
 
-    return {accessToken, idToken, scopes};
+    return { accessToken, idToken, scopes };
   }
 
   private async acquireTokenSilently(context: PublicClientApplication, scopes: string[]): Promise<AuthResult> {
-    const {accessToken, idToken} = await context.acquireTokenSilent({
+    const { accessToken, idToken } = await context.acquireTokenSilent({
       scopes,
       account: context.getAllAccounts()[0],
     });
 
-    return {accessToken, idToken, scopes};
+    return { accessToken, idToken, scopes };
   }
 }
-
-const MsAuthPlugin = new MsAuthPluginWeb();
-
-export {MsAuthPlugin};
