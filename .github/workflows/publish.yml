@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '14'
       - run: npm ci
-      - run: npm version ${GITHUB_REF##*/}
+      - run: npm version --no-commit-hooks ${GITHUB_REF##*/}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
