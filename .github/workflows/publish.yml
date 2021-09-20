@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - run: npm install
+      - run: npm ci
       - run: npm version ${GITHUB_REF##*/}
       - run: npm publish
         env:
