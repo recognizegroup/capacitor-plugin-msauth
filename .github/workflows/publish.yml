@@ -3,6 +3,9 @@ on:
   push:
     tags: ['**']
 
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
 jobs:
   publish:
     runs-on: macos-latest
@@ -12,7 +15,6 @@ jobs:
         with:
           node-version: '14'
       - run: npm ci
+      - run: npm whoami
       - run: npm version --commit-hooks=false --allow-same-version=true ${GITHUB_REF##*/}
       - run: npm publish
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
