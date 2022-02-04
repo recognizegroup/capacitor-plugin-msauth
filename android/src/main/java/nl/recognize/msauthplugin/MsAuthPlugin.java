@@ -137,9 +137,9 @@ public class MsAuthPlugin extends Plugin {
                         TokenResult tokenResult = new TokenResult();
 
                         IAccount account = authenticationResult.getAccount();
+                        tokenResult.setAccessToken(authenticationResult.getAccessToken());
                         tokenResult.setIdToken(account.getIdToken());
-                        tokenResult.setAccessToken(tokenResult.getAccessToken());
-                        tokenResult.setScopes(tokenResult.getScopes());
+                        tokenResult.setScopes(authenticationResult.getScope());
 
                         callback.tokenReceived(tokenResult);
                     }
