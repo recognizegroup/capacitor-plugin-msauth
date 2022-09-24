@@ -32,6 +32,7 @@ import org.json.JSONObject;
     permissions = { @Permission(alias = "network", strings = { Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET }) }
 )
 public class MsAuthPlugin extends Plugin {
+
     private final PublicClientApplicationFactory publicClientApplicationFactory;
 
     public MsAuthPlugin() {
@@ -90,7 +91,6 @@ public class MsAuthPlugin extends Plugin {
             } else {
                 context.signOut(
                     new ISingleAccountPublicClientApplication.SignOutCallback() {
-
                         @Override
                         public void onSignOut() {
                             call.resolve();
@@ -125,7 +125,6 @@ public class MsAuthPlugin extends Plugin {
             .withPrompt(Prompt.SELECT_ACCOUNT)
             .withCallback(
                 new AuthenticationCallback() {
-
                     @Override
                     public void onCancel() {
                         Logger.info("Login cancelled");
@@ -207,8 +206,7 @@ public class MsAuthPlugin extends Plugin {
         AuthorityType authorityType,
         String customAuthorityUrl,
         String keyHash
-    )
-        throws MsalException, InterruptedException, IOException, JSONException {
+    ) throws MsalException, InterruptedException, IOException, JSONException {
         String tenantId = (tenant != null ? tenant : "common");
         String authorityUrl = customAuthorityUrl != null ? customAuthorityUrl : "https://login.microsoftonline.com/" + tenantId;
         String urlEncodedKeyHash = URLEncoder.encode(keyHash, "UTF-8");

@@ -31,6 +31,7 @@ import org.mockito.stubbing.Answer;
 
 @ExtendWith(MockitoExtension.class)
 class MsAuthPluginTest {
+
     public static final String AUTHORITY_URL = "https://www.recognize.nl";
     public static final String KEY_HASH = "cmFuZG9tLWtleS1oYXNoLW9idGFpbmVkLWZyb20tYXp1cmU=";
     public static final String TENANT = "f6785b1e-7ae8-4c41-8b72-d418f03cc1d7";

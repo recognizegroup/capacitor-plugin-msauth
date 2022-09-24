@@ -14,8 +14,7 @@ public class DefaultPublicClientApplicationFactory implements PublicClientApplic
     public ISingleAccountPublicClientApplication createSingleAccountPublicClientApplication(
         @NonNull Context context,
         @Nullable File configFile
-    )
-        throws InterruptedException, MsalException {
+    ) throws InterruptedException, MsalException {
         return PublicClientApplication.createSingleAccountPublicClientApplication(context, configFile);
     }
 }

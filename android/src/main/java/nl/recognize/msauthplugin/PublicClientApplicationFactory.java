@@ -11,6 +11,5 @@ public interface PublicClientApplicationFactory {
     ISingleAccountPublicClientApplication createSingleAccountPublicClientApplication(
         @NonNull final Context context,
         @Nullable final File configFile
-    )
-        throws InterruptedException, MsalException;
+    ) throws InterruptedException, MsalException;
 }
