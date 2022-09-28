@@ -1,6 +1,7 @@
 package nl.recognize.msauthplugin;
 
 public class TokenResult {
+
     private String accessToken;
     private String idToken;
     private String[] scopes;
