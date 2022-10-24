@@ -27,6 +27,7 @@ This plugin contains an implementation of MSAL for Capacitor.
     <string>msauthv3</string>
 </array>
 ```
+* (iOS) Add `import RecognizebvCapacitorPluginMsauth` to the top of the AppDelegate file to ensure that the library is linked
 * (iOS) if your app's AppDelegate already implements a `application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool` function, you should add the following code inside this method:
 ```swift
 if MsAuthPlugin.checkAppOpen(url: url, options: options) == true {
