@@ -48,6 +48,7 @@ export class MsAuth extends WebPlugin implements MsAuthPlugin {
     const config = {
       auth: {
         clientId: options.clientId,
+        domainHint: options.domainHint,
         authority: options.authorityUrl ?? `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
         knownAuthorities: options.knownAuthorities,
         redirectUri: options.redirectUri ?? this.getCurrentUrl(),

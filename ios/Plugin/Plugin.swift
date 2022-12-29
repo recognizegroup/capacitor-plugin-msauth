@@ -81,6 +81,7 @@ public class MsAuthPlugin: CAPPlugin {
             call.reject("Invalid client ID specified.")
             return nil
         }
+        let domainHint = call.getString("domainHint")
         let tenant = call.getString("tenant")
         let authorityURL = call.getString("authorityUrl")
         let authorityType = call.getString("authorityType") ?? "AAD"
@@ -92,7 +93,7 @@ public class MsAuthPlugin: CAPPlugin {
 
         guard let enumAuthorityType = AuthorityType(rawValue: authorityType.lowercased()),
               let context = createContext(
-                clientId: clientId, tenant: tenant, authorityType: enumAuthorityType, customAuthorityURL: authorityURL
+                clientId: clientId, domainHint: domainHint, tenant: tenant, authorityType: enumAuthorityType, customAuthorityURL: authorityURL
               ) else {
             call.reject("Unable to create context, check logs")
             return nil
@@ -101,7 +102,7 @@ public class MsAuthPlugin: CAPPlugin {
         return context
     }
 
-    private func createContext(clientId: String, tenant: String?, authorityType: AuthorityType, customAuthorityURL: String?) -> MSALPublicClientApplication? {
+    private func createContext(clientId: String, domainHint: String?, tenant: String?, authorityType: AuthorityType, customAuthorityURL: String?) -> MSALPublicClientApplication? {
         guard let authorityURL = URL(string: customAuthorityURL ?? "https://login.microsoftonline.com/\(tenant ?? "common")") else {
             print("Invalid authorityUrl or tenant specified")
             return nil
@@ -110,7 +111,7 @@ public class MsAuthPlugin: CAPPlugin {
         do {
             let authority = authorityType == .aad
                 ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
-            let msalConfiguration = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
+            let msalConfiguration = MSALPublicClientApplicationConfig(clientId: clientId, domainHint: domainHint, redirectUri: nil, authority: authority)
             msalConfiguration.knownAuthorities = [authority]
             return try MSALPublicClientApplication(configuration: msalConfiguration)
         } catch {
