@@ -77,7 +77,7 @@ const {MsAuthPlugin} = Plugins;
 const result = await MsAuthPlugin.login({
     clientId: '<client id>',
     tenant: '<tenant, defaults to common>',
-    domainHint: '<domainHint, defaults to common>',
+    domainHint: '<domainHint>',
     scopes: ['<scopes, defaults to no scopes>'],
     keyHash: '<Android only, the key hash as obtained above>',
 });
@@ -94,7 +94,7 @@ const {MsAuthPlugin} = Plugins;
 await MsAuthPlugin.logout({
     clientId: '<client id>',
     tenant: '<tenant, defaults to common>',
-    domainHint: '<domainHint, defaults to common>',
+    domainHint: '<domainHint>',
     keyHash: '<Android only, the key hash as obtained above>',
 });
 ```
