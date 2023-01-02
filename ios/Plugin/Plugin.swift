@@ -111,7 +111,12 @@ public class MsAuthPlugin: CAPPlugin {
         do {
             let authority = authorityType == .aad
                 ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
-            let msalConfiguration = MSALPublicClientApplicationConfig(clientId: clientId, domainHint: domainHint, redirectUri: nil, authority: authority)
+            
+            if (domainHint != nil) {
+                print("Warning: domain hint is currently not supported on iOS.")
+            }
+            
+            let msalConfiguration = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
             msalConfiguration.knownAuthorities = [authority]
             return try MSALPublicClientApplication(configuration: msalConfiguration)
         } catch {

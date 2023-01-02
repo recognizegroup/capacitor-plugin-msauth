@@ -36,6 +36,7 @@ class MsAuthPluginTest {
     public static final String KEY_HASH = "cmFuZG9tLWtleS1oYXNoLW9idGFpbmVkLWZyb20tYXp1cmU=";
     public static final String TENANT = "f6785b1e-7ae8-4c41-8b72-d418f03cc1d7";
     public static final String CLIENT_ID = "3892f330-5945-4db6-9167-4d5e644ab840";
+    public static final String DOMAIN_HINT = "recognize.nl";
     public static final String ID_TOKEN =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
