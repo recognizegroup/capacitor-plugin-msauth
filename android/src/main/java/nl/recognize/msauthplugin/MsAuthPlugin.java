@@ -177,6 +177,7 @@ public class MsAuthPlugin extends Plugin {
     private ISingleAccountPublicClientApplication createContextFromPluginCall(PluginCall call)
         throws MsalException, InterruptedException, IOException, JSONException {
         String clientId = call.getString("clientId");
+        String domainHint = call.getString("domainHint");
         String tenant = call.getString("tenant");
         String keyHash = call.getString("keyHash");
         String authorityTypeString = call.getString("authorityType", AuthorityType.AAD.name());
@@ -197,11 +198,12 @@ public class MsAuthPlugin extends Plugin {
             return null;
         }
 
-        return this.createContext(clientId, tenant, authorityType, authorityUrl, keyHash);
+        return this.createContext(clientId, domainHint, tenant, authorityType, authorityUrl, keyHash);
     }
 
     private ISingleAccountPublicClientApplication createContext(
         String clientId,
+        String domainHint,
         String tenant,
         AuthorityType authorityType,
         String customAuthorityUrl,
@@ -229,6 +231,7 @@ public class MsAuthPlugin extends Plugin {
 
         JSONObject configFile = new JSONObject();
         configFile.put("client_id", clientId);
+        configFile.put("domain_hint", domainHint);
         configFile.put("authorization_user_agent", "DEFAULT");
         configFile.put("redirect_uri", redirectUri);
         configFile.put("broker_redirect_uri_registered", false);

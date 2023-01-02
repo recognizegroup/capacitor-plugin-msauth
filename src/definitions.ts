@@ -1,6 +1,7 @@
 export interface BaseOptions {
   clientId: string;
   tenant?: string;
+  domainHint?: string;
   authorityType?: 'AAD' | 'B2C';
   authorityUrl?: string;
   knownAuthorities?: string[];

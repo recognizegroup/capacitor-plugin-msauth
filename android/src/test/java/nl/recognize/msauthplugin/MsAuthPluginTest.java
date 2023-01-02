@@ -126,6 +126,8 @@ class MsAuthPluginTest {
                     switch (invocation.getArgument(0).toString()) {
                         case "clientId":
                             return CLIENT_ID;
+                        case "domainHint":
+                            return DOMAIN_HINT;
                         case "tenant":
                             return TENANT;
                         case "keyHash":
