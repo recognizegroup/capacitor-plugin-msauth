@@ -40,7 +40,7 @@ export class MsAuth extends WebPlugin implements MsAuthPlugin {
     if (!context.getAllAccounts()[0]) {
       return Promise.reject(new Error('Nothing to sign out from.'));
     } else {
-      return context.logout();
+      return context.logoutPopup();
     }
   }
 
