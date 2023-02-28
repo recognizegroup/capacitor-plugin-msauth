@@ -65,7 +65,7 @@ public class MsAuthPlugin: CAPPlugin {
                     if let error = error {
                         print("Unable to logout: \(error)")
 
-                        call.reject("Unable to lgout")
+                        call.reject("Unable to logout")
 
                         return
                     }
@@ -132,6 +132,33 @@ public class MsAuthPlugin: CAPPlugin {
         let msalParameters = MSALParameters()
         msalParameters.completionBlockQueue = DispatchQueue.main
 
+        // Check through multiple accounts in the cache if present
+        do {
+            let accounts = try applicationContext.allAccounts() // Get all cached accounts
+            if accounts.count > 1 {
+                let authorityUrl = applicationContext.configuration.authority.url
+                for account in accounts {
+                    if let tenants = account.tenantProfiles {
+                        for tenant in tenants {
+                            if let tenantId = tenant.tenantId {
+                                // Find first account where authority url matches tenant id
+                                if authorityUrl.absoluteString.contains(tenantId) { 
+                                    completion(account)
+                                    return
+                                }
+                            }
+                        }
+                    }
+                }
+                // If no match is found for the authority url (fallback for multi-tenant app registration)
+                completion(accounts[0]) // return the first available account
+                return
+            }
+        } catch {
+            print("Unable to access cached accounts list")
+        }
+
+
         applicationContext.getCurrentAccount(with: msalParameters, completionBlock: { (currentAccount, _, error) in
             if let error = error {
                 print("Unable to query current account: \(error)")
@@ -149,6 +176,7 @@ public class MsAuthPlugin: CAPPlugin {
 
             completion(nil)
         })
+
     }
 
     func acquireTokenInteractively(applicationContext: MSALPublicClientApplication, scopes: [String], completion: @escaping (MSALResult?) -> Void) {
