@@ -34,9 +34,10 @@ jobs:
           languages: java
           packs: codeql/java-queries
 
-      # Autobuild the language if possible
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+      - name: Run preparation script
+        run: |-
+          export GRADLE_OPTS="-Xmx2048m"
+          (cd android; ./gradlew --no-daemon --no-parallel assemble)
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
