@@ -37,6 +37,7 @@ jobs:
       - name: Run preparation script
         run: |-
           export GRADLE_OPTS="-Xmx2048m"
+          npm ci
           (cd android; ./gradlew --no-daemon --no-parallel assemble)
 
       - name: Perform CodeQL Analysis
