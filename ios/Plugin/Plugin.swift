@@ -75,6 +75,51 @@ public class MsAuthPlugin: CAPPlugin {
             }
         }
     }
+    
+    @objc func logoutAll(_ call: CAPPluginCall) {
+        guard let context = createContextFromPluginCall(call) else {
+            call.reject("Unable to create context, check logs")
+            return
+        }
+
+        guard let bridgeViewController = bridge?.viewController else {
+            call.reject("Unable to get Capacitor bridge.viewController")
+            return
+        }
+
+        do {
+            let accounts = try context.allAccounts()
+            var completed = 0
+            
+            accounts.forEach {
+                let wvParameters = MSALWebviewParameters(authPresentationViewController: bridgeViewController)
+                let signoutParameters = MSALSignoutParameters(webviewParameters: wvParameters)
+                signoutParameters.signoutFromBrowser = false // set this to true if you also want to signout from browser or webview
+                
+                context.signout(with: $0, signoutParameters: signoutParameters, completionBlock: {(_, error) in
+                    completed += 1
+
+                    if let error = error {
+                        print("Unable to logout: \(error)")
+                        
+                        call.reject("Unable to logout")
+                        
+                        return
+                    }
+                    
+                    if completed == accounts.count {
+                        call.resolve()
+                    }
+                })
+            }
+        } catch {
+            print("Unable to logout: \(error)")
+
+            call.reject("Unable to logout")
+
+            return
+        }
+    }
 
     private func createContextFromPluginCall(_ call: CAPPluginCall) -> MSALPublicClientApplication? {
         guard let clientId = call.getString("clientId") else {
