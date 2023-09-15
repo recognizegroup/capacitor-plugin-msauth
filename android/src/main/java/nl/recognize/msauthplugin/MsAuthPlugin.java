@@ -110,6 +110,11 @@ public class MsAuthPlugin extends Plugin {
         }
     }
 
+    @PluginMethod
+    public void logoutAll(final PluginCall call) {
+        logout(call);
+    }
+
     protected String getAuthorityUrl(ISingleAccountPublicClientApplication context) {
         return context.getConfiguration().getDefaultAuthority().getAuthorityURL().toString();
     }
