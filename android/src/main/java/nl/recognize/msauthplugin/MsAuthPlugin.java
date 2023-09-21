@@ -9,13 +9,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
-import com.microsoft.identity.client.AcquireTokenParameters;
-import com.microsoft.identity.client.AuthenticationCallback;
-import com.microsoft.identity.client.IAccount;
-import com.microsoft.identity.client.IAuthenticationResult;
-import com.microsoft.identity.client.ICurrentAccountResult;
-import com.microsoft.identity.client.ISingleAccountPublicClientApplication;
-import com.microsoft.identity.client.Prompt;
+import com.microsoft.identity.client.*;
 import com.microsoft.identity.client.exception.MsalException;
 import java.io.File;
 import java.io.FileWriter;
@@ -167,7 +161,9 @@ public class MsAuthPlugin extends Plugin {
         if ((ca = context.getCurrentAccount()) != null && ca.getCurrentAccount() == null) {
             this.acquireTokenInteractively(context, scopes, callback);
         } else {
-            IAuthenticationResult silentAuthResult = context.acquireTokenSilent(scopes.toArray(new String[0]), authority);
+            AcquireTokenSilentParameters parameters =
+                (new AcquireTokenSilentParameters.Builder()).withScopes(scopes).fromAuthority(authority).build();
+            IAuthenticationResult silentAuthResult = context.acquireTokenSilent(parameters);
             IAccount account = silentAuthResult.getAccount();
 
             TokenResult tokenResult = new TokenResult();

@@ -63,7 +63,8 @@ allprojects {
 dependencies {
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
-    implementation "com.microsoft.identity.client:msal:2.2.0"
+    implementation "com.microsoft.identity.client:msal:4.1.0"
+
     testImplementation "org.json:json:20230227"
     testImplementation "org.mockito:mockito-inline:5.2.0"
     testImplementation "org.mockito:mockito-junit-jupiter:5.3.1"

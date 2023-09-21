@@ -2,7 +2,7 @@ package nl.recognize.msauthplugin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -20,6 +20,7 @@ import com.microsoft.identity.client.IAuthenticationResult;
 import com.microsoft.identity.client.ISingleAccountPublicClientApplication;
 import com.microsoft.identity.client.exception.MsalException;
 import java.io.File;
+import java.util.List;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,7 +103,13 @@ class MsAuthPluginTest {
             ID_TOKEN,
             new String[] { "mocked-scope", "openid", "profile" }
         );
-        when(singleAccountPublicClientApplication.acquireTokenSilent(new String[] { "mocked-scope" }, "https://www.recognize.nl"))
+        when(
+            singleAccountPublicClientApplication.acquireTokenSilent(
+                argThat(
+                    parameters -> parameters.getScopes().equals(List.of("mocked-scope")) && parameters.getAuthority().equals(AUTHORITY_URL)
+                )
+            )
+        )
             .thenReturn(result);
 
         ArgumentCaptor<JSObject> jsObjectCaptor = ArgumentCaptor.forClass(JSObject.class);
@@ -114,9 +121,10 @@ class MsAuthPluginTest {
         // Verify
         JSObject resolve = jsObjectCaptor.getValue();
         assertEquals("access-token", resolve.getString("accessToken"));
-        assertEquals("" + ID_TOKEN, resolve.getString("idToken"));
+        assertEquals(ID_TOKEN, resolve.getString("idToken"));
 
-        verify(singleAccountPublicClientApplication).acquireTokenSilent(any(), eq(AUTHORITY_URL));
+        verify(singleAccountPublicClientApplication)
+            .acquireTokenSilent(argThat(parameters -> parameters.getAuthority().equals(AUTHORITY_URL)));
     }
 
     private void initializePluginCallMockWithDefaults(PluginCall pluginCallMock) throws JSONException {
