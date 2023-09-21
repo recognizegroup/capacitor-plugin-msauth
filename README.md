@@ -38,7 +38,8 @@ if MsAuthPlugin.checkAppOpen(url: url, options: options) == true {
 * (Android) In the `AndroidManifest.xml` file, append the following code within the `<application>` section:
 ```xml
 <activity
-        android:name="com.microsoft.identity.client.BrowserTabActivity">
+        android:name="com.microsoft.identity.client.BrowserTabActivity"
+        android:exported="true">
     <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
