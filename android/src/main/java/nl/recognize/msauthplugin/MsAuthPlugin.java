@@ -183,6 +183,7 @@ public class MsAuthPlugin extends Plugin {
         String keyHash = call.getString("keyHash");
         String authorityTypeString = call.getString("authorityType", AuthorityType.AAD.name());
         String authorityUrl = call.getString("authorityUrl");
+        Boolean brokerRedirectUriRegistered = call.getBoolean("brokerRedirectUriRegistered", false);
 
         if (keyHash == null || keyHash.length() == 0) {
             call.reject("Invalid key hash specified.");
@@ -199,7 +200,7 @@ public class MsAuthPlugin extends Plugin {
             return null;
         }
 
-        return this.createContext(clientId, domainHint, tenant, authorityType, authorityUrl, keyHash);
+        return this.createContext(clientId, domainHint, tenant, authorityType, authorityUrl, keyHash, brokerRedirectUriRegistered);
     }
 
     private ISingleAccountPublicClientApplication createContext(
@@ -208,13 +209,15 @@ public class MsAuthPlugin extends Plugin {
         String tenant,
         AuthorityType authorityType,
         String customAuthorityUrl,
-        String keyHash
+        String keyHash,
+        Boolean brokerRedirectUriRegistered
     ) throws MsalException, InterruptedException, IOException, JSONException {
         String tenantId = (tenant != null ? tenant : "common");
         String authorityUrl = customAuthorityUrl != null ? customAuthorityUrl : "https://login.microsoftonline.com/" + tenantId;
         String urlEncodedKeyHash = URLEncoder.encode(keyHash, "UTF-8");
         String redirectUri = "msauth://" + getActivity().getApplicationContext().getPackageName() + "/" + urlEncodedKeyHash;
 
+        JSONObject configFile = new JSONObject();
         JSONObject authorityConfig = new JSONObject();
 
         switch (authorityType) {
@@ -222,6 +225,7 @@ public class MsAuthPlugin extends Plugin {
                 authorityConfig.put("type", AuthorityType.AAD.name());
                 authorityConfig.put("authority_url", authorityUrl);
                 authorityConfig.put("audience", (new JSONObject()).put("type", "AzureADMultipleOrgs").put("tenant_id", tenantId));
+                configFile.put("broker_redirect_uri_registered", brokerRedirectUriRegistered);
                 break;
             case B2C:
                 authorityConfig.put("type", AuthorityType.B2C.name());
@@ -230,12 +234,10 @@ public class MsAuthPlugin extends Plugin {
                 break;
         }
 
-        JSONObject configFile = new JSONObject();
         configFile.put("client_id", clientId);
         configFile.put("domain_hint", domainHint);
         configFile.put("authorization_user_agent", "DEFAULT");
         configFile.put("redirect_uri", redirectUri);
-        configFile.put("broker_redirect_uri_registered", false);
         configFile.put("account_mode", "SINGLE");
         configFile.put("authorities", (new JSONArray()).put(authorityConfig));
 
