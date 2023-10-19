@@ -1,12 +1,9 @@
 name: "Code Scanning"
 
 on:
-  push:
-    branches: [ develop, main, master, release/*, hotfix/* ]
-  pull_request:
-    branches: [ main ]
   schedule:
-    - cron: '0 9 * * 1'
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
 
 jobs:
   code-scanning-java:
