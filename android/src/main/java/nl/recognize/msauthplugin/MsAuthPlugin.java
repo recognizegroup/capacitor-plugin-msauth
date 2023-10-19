@@ -164,12 +164,12 @@ public class MsAuthPlugin extends Plugin {
         } else {
             Logger.info("Starting silent login flow");
             AcquireTokenSilentParameters.Builder builder = new AcquireTokenSilentParameters.Builder()
-                    .withScopes(scopes)
-                    .fromAuthority(authority);
+                .withScopes(scopes)
+                .fromAuthority(authority);
 
-            if (ca.getCurrentAccount() != null) {
+            if (ca != null && ca.getCurrentAccount() != null) {
                 Logger.info("Silent login flow for current account");
-                builder.forAccount(ca.getCurrentAccount());
+                builder = builder.forAccount(ca.getCurrentAccount());
             }
 
             AcquireTokenSilentParameters parameters = builder.build();
