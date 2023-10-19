@@ -65,7 +65,7 @@ public class MsAuthPlugin extends Plugin {
                     }
                 );
         } catch (Exception ex) {
-            Logger.error("Unable to login", ex);
+            Logger.error("Unable to login: " + ex.getMessage(), ex);
             call.reject("Unable to fetch access token.");
         }
     }
@@ -159,10 +159,20 @@ public class MsAuthPlugin extends Plugin {
 
         final ICurrentAccountResult ca;
         if ((ca = context.getCurrentAccount()) != null && ca.getCurrentAccount() == null) {
+            Logger.info("Starting interactive login flow");
             this.acquireTokenInteractively(context, scopes, callback);
         } else {
-            AcquireTokenSilentParameters parameters =
-                (new AcquireTokenSilentParameters.Builder()).withScopes(scopes).fromAuthority(authority).build();
+            Logger.info("Starting silent login flow");
+            AcquireTokenSilentParameters.Builder builder = new AcquireTokenSilentParameters.Builder()
+                .withScopes(scopes)
+                .fromAuthority(authority);
+
+            if (ca != null && ca.getCurrentAccount() != null) {
+                Logger.info("Silent login flow for current account");
+                builder = builder.forAccount(ca.getCurrentAccount());
+            }
+
+            AcquireTokenSilentParameters parameters = builder.build();
             IAuthenticationResult silentAuthResult = context.acquireTokenSilent(parameters);
             IAccount account = silentAuthResult.getAccount();
 
