@@ -99,3 +99,11 @@ await MsAuthPlugin.logout({
     keyHash: '<Android only, the key hash as obtained above>',
 });
 ```
+## MSAL Versions
+There are some scenarios where the default project may be generated in such a way which prevents a build from succeeding. To get around this, a variable has been exposed to allow users to configure the Microsoft Authentication library version. By setting the `recognizebvMSALVersion` variable in your root `build.gradle` you can override the default version used during dependency resolution. See this [issue](https://github.com/recognizegroup/capacitor-plugin-msauth/issues/42) for more details. Here's an example you can place in your root `build.gradle` file to override the MSAL version.
+
+```groovy
+ext {
+  recognizebvMSALVersion = '5.3.0' // This version fixed the open telemetry issue described in issue #42.
+}
+```

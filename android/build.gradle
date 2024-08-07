@@ -3,6 +3,7 @@ ext {
     androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.6.1'
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.1.5'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.5.1'
+    recognizebvMSALVersion = project.hasProperty("recognizebvMSALVersion") ? rootProject.ext.recognizebvMSALVersion : '4.9.0'
 }
 
 buildscript {
@@ -63,7 +64,7 @@ allprojects {
 dependencies {
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
-    implementation "com.microsoft.identity.client:msal:4.9.0"
+    implementation "com.microsoft.identity.client:msal:$recognizebvMSALVersion"
 
     testImplementation "org.json:json:20230227"
     testImplementation "org.mockito:mockito-inline:5.2.0"
