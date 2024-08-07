@@ -1,9 +1,9 @@
 ext {
     junitVersion = project.hasProperty('junitVersion') ? rootProject.ext.junitVersion : '4.13.2'
-    androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.6.1'
-    androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.1.5'
-    androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.5.1'
-    recognizebvMSALVersion = project.hasProperty("recognizebvMSALVersion") ? rootProject.ext.recognizebvMSALVersion : '4.9.0'
+    androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.7.0'
+    androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.2.1'
+    androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.6.1'
+    recognizebvMSALVersion = project.hasProperty("recognizebvMSALVersion") ? rootProject.ext.recognizebvMSALVersion : '5.4.0'
 }
 
 buildscript {
@@ -12,7 +12,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.0'
+        classpath 'com.android.tools.build:gradle:8.2.1'
     }
 }
 
@@ -66,15 +66,15 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "com.microsoft.identity.client:msal:$recognizebvMSALVersion"
 
-    testImplementation "org.json:json:20230227"
+    testImplementation "org.json:json:20240303"
     testImplementation "org.mockito:mockito-inline:5.2.0"
-    testImplementation "org.mockito:mockito-junit-jupiter:5.3.1"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.9.3"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.9.3"
+    testImplementation "org.mockito:mockito-junit-jupiter:5.12.0"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0-M2"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.11.0-M2"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
-    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.8.0"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0-M2"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.11.0-M2"
 }
 
 tasks.withType(Test) {
