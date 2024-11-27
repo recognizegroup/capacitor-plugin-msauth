@@ -11,6 +11,8 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.microsoft.identity.client.*;
 import com.microsoft.identity.client.exception.MsalException;
+import com.microsoft.identity.client.exception.MsalUiRequiredException;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -113,76 +115,76 @@ public class MsAuthPlugin extends Plugin {
         return context.getConfiguration().getDefaultAuthority().getAuthorityURL().toString();
     }
 
-    private void acquireTokenInteractively(
-        ISingleAccountPublicClientApplication context,
-        List<String> scopes,
-        final TokenResultCallback callback
-    ) {
-        AcquireTokenParameters.Builder params = new AcquireTokenParameters.Builder()
-            .startAuthorizationFromActivity(this.getActivity())
-            .withScopes(scopes)
-            .withPrompt(Prompt.SELECT_ACCOUNT)
-            .withCallback(
-                new AuthenticationCallback() {
-                    @Override
-                    public void onCancel() {
-                        Logger.info("Login cancelled");
-                        callback.tokenReceived(null);
-                    }
-
-                    @Override
-                    public void onSuccess(IAuthenticationResult authenticationResult) {
-                        TokenResult tokenResult = new TokenResult();
-
-                        IAccount account = authenticationResult.getAccount();
-                        tokenResult.setAccessToken(authenticationResult.getAccessToken());
-                        tokenResult.setIdToken(account.getIdToken());
-                        tokenResult.setScopes(authenticationResult.getScope());
-
-                        callback.tokenReceived(tokenResult);
-                    }
-
-                    @Override
-                    public void onError(MsalException ex) {
-                        Logger.error("Unable to acquire token interactively", ex);
-                        callback.tokenReceived(null);
-                    }
-                }
-            );
-
-        context.acquireToken(params.build());
-    }
-
     private void acquireToken(ISingleAccountPublicClientApplication context, List<String> scopes, final TokenResultCallback callback)
         throws MsalException, InterruptedException {
         String authority = getAuthorityUrl(context);
 
-        final ICurrentAccountResult ca;
-        if ((ca = context.getCurrentAccount()) != null && ca.getCurrentAccount() == null) {
-            Logger.info("Starting interactive login flow");
-            this.acquireTokenInteractively(context, scopes, callback);
-        } else {
-            Logger.info("Starting silent login flow");
-            AcquireTokenSilentParameters.Builder builder = new AcquireTokenSilentParameters.Builder()
-                .withScopes(scopes)
-                .fromAuthority(authority);
+        ICurrentAccountResult result = context.getCurrentAccount();
+        if (result.getCurrentAccount() != null) {
+            try {
+                Logger.info("Starting silent login flow");
+                AcquireTokenSilentParameters.Builder builder = new AcquireTokenSilentParameters.Builder()
+                        .withScopes(scopes)
+                        .fromAuthority(authority)
+                        .forAccount(result.getCurrentAccount());
 
-            if (ca != null && ca.getCurrentAccount() != null) {
-                Logger.info("Silent login flow for current account");
-                builder = builder.forAccount(ca.getCurrentAccount());
+                AcquireTokenSilentParameters parameters = builder.build();
+                IAuthenticationResult silentAuthResult = context.acquireTokenSilent(parameters);
+                IAccount account = silentAuthResult.getAccount();
+
+                TokenResult tokenResult = new TokenResult();
+                tokenResult.setAccessToken(silentAuthResult.getAccessToken());
+                tokenResult.setIdToken(account.getIdToken());
+                tokenResult.setScopes(silentAuthResult.getScope());
+
+                callback.tokenReceived(tokenResult);
+
+                return;
+            } catch (MsalUiRequiredException ex) {
+                Logger.error("Silent login failed", ex);
             }
-
-            AcquireTokenSilentParameters parameters = builder.build();
-            IAuthenticationResult silentAuthResult = context.acquireTokenSilent(parameters);
-            IAccount account = silentAuthResult.getAccount();
-
-            TokenResult tokenResult = new TokenResult();
-            tokenResult.setAccessToken(silentAuthResult.getAccessToken());
-            tokenResult.setIdToken(account.getIdToken());
-            tokenResult.setScopes(silentAuthResult.getScope());
-
-            callback.tokenReceived(tokenResult);
         }
+
+        Logger.info("Starting interactive login flow");
+        AcquireTokenParameters.Builder params = new AcquireTokenParameters.Builder()
+                .startAuthorizationFromActivity(this.getActivity())
+                .withScopes(scopes)
+                .withPrompt(Prompt.SELECT_ACCOUNT)
+                .withCallback(
+                        new AuthenticationCallback() {
+                            @Override
+                            public void onCancel() {
+                                Logger.info("Login cancelled");
+                                callback.tokenReceived(null);
+                            }
+
+                            @Override
+                            public void onSuccess(IAuthenticationResult authenticationResult) {
+                                TokenResult tokenResult = new TokenResult();
+
+                                IAccount account = authenticationResult.getAccount();
+                                tokenResult.setAccessToken(authenticationResult.getAccessToken());
+                                tokenResult.setIdToken(account.getIdToken());
+                                tokenResult.setScopes(authenticationResult.getScope());
+
+                                callback.tokenReceived(tokenResult);
+                            }
+
+                            @Override
+                            public void onError(MsalException ex) {
+                                Logger.error("Unable to acquire token interactively", ex);
+                                callback.tokenReceived(null);
+                            }
+                        }
+                );
+
+        if (result.getCurrentAccount() != null) {
+            // Set loginHint otherwise MSAL throws an exception because of mismatched account
+            params.withLoginHint(result.getCurrentAccount().getUsername());
+        }
+
+        context.acquireToken(params.build());
+
     }
 
     private ISingleAccountPublicClientApplication createContextFromPluginCall(PluginCall call)
