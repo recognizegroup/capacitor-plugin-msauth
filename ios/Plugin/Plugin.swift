@@ -131,8 +131,8 @@ public class MsAuthPlugin: CAPPlugin {
         let authorityURL = call.getString("authorityUrl")
         let authorityType = call.getString("authorityType") ?? "AAD"
 
-        if authorityType != "AAD" && authorityType != "B2C" {
-            call.reject("authorityType must be one of 'AAD' or 'B2C'")
+        if authorityType != "AAD" && authorityType != "B2C" && authorityType != "CIAM" {
+            call.reject("authorityType must be one of 'AAD' or 'B2C' or 'CIAM'")
             return nil
         }
 
@@ -302,6 +302,7 @@ public class MsAuthPlugin: CAPPlugin {
 enum AuthorityType: String {
     case aad
     case b2c
+    case ciam
 }
 
 extension UIApplicationDelegate {
