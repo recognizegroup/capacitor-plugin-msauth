@@ -81,6 +81,7 @@ const result = await MsAuthPlugin.login({
     domainHint: '<domainHint>',
     scopes: ['<scopes, defaults to no scopes>'],
     keyHash: '<Android only, the key hash as obtained above>',
+    authorityType: '<AAD/B2C/CIAM>',
 });
 
 const accessToken = result.accessToken;
