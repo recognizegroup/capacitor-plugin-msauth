@@ -154,7 +154,7 @@ public class MsAuthPlugin: CAPPlugin {
         }
 
         do {
-            let authority = authorityType == .aad
+            let authority = authorityType == .aad || authorityType == .ciam
                 ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
 
             if domainHint != nil {

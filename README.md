@@ -82,6 +82,7 @@ const result = await MsAuthPlugin.login({
     scopes: ['<scopes, defaults to no scopes>'],
     keyHash: '<Android only, the key hash as obtained above>',
     authorityType: '<AAD/B2C/CIAM>',
+    authorityUrl: '<To sign the user into a specific CIAM tenant, configure with a specific authority. For example: https://xxx.ciamlogin.com/dddd5555-eeee-6666-ffff-00001111aaaa>',
 });
 
 const accessToken = result.accessToken;

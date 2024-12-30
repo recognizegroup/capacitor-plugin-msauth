@@ -245,7 +245,7 @@ public class MsAuthPlugin extends Plugin {
                 authorityConfig.put("default", "true");
                 break;
             case CIAM:
-                authorityConfig.put("type", AuthorityType.CIAM.name()).put("authority_url", authorityUrl + "/" + tenantId);
+                authorityConfig.put("type", AuthorityType.CIAM.name()).put("authority_url", authorityUrl);
                 break;
         }
 
