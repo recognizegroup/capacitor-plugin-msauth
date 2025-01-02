@@ -12,7 +12,6 @@ import com.getcapacitor.annotation.Permission;
 import com.microsoft.identity.client.*;
 import com.microsoft.identity.client.exception.MsalException;
 import com.microsoft.identity.client.exception.MsalUiRequiredException;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -124,9 +123,9 @@ public class MsAuthPlugin extends Plugin {
             try {
                 Logger.info("Starting silent login flow");
                 AcquireTokenSilentParameters.Builder builder = new AcquireTokenSilentParameters.Builder()
-                        .withScopes(scopes)
-                        .fromAuthority(authority)
-                        .forAccount(result.getCurrentAccount());
+                    .withScopes(scopes)
+                    .fromAuthority(authority)
+                    .forAccount(result.getCurrentAccount());
 
                 AcquireTokenSilentParameters parameters = builder.build();
                 IAuthenticationResult silentAuthResult = context.acquireTokenSilent(parameters);
@@ -147,36 +146,36 @@ public class MsAuthPlugin extends Plugin {
 
         Logger.info("Starting interactive login flow");
         AcquireTokenParameters.Builder params = new AcquireTokenParameters.Builder()
-                .startAuthorizationFromActivity(this.getActivity())
-                .withScopes(scopes)
-                .withPrompt(Prompt.SELECT_ACCOUNT)
-                .withCallback(
-                        new AuthenticationCallback() {
-                            @Override
-                            public void onCancel() {
-                                Logger.info("Login cancelled");
-                                callback.tokenReceived(null);
-                            }
+            .startAuthorizationFromActivity(this.getActivity())
+            .withScopes(scopes)
+            .withPrompt(Prompt.SELECT_ACCOUNT)
+            .withCallback(
+                new AuthenticationCallback() {
+                    @Override
+                    public void onCancel() {
+                        Logger.info("Login cancelled");
+                        callback.tokenReceived(null);
+                    }
 
-                            @Override
-                            public void onSuccess(IAuthenticationResult authenticationResult) {
-                                TokenResult tokenResult = new TokenResult();
+                    @Override
+                    public void onSuccess(IAuthenticationResult authenticationResult) {
+                        TokenResult tokenResult = new TokenResult();
 
-                                IAccount account = authenticationResult.getAccount();
-                                tokenResult.setAccessToken(authenticationResult.getAccessToken());
-                                tokenResult.setIdToken(account.getIdToken());
-                                tokenResult.setScopes(authenticationResult.getScope());
+                        IAccount account = authenticationResult.getAccount();
+                        tokenResult.setAccessToken(authenticationResult.getAccessToken());
+                        tokenResult.setIdToken(account.getIdToken());
+                        tokenResult.setScopes(authenticationResult.getScope());
 
-                                callback.tokenReceived(tokenResult);
-                            }
+                        callback.tokenReceived(tokenResult);
+                    }
 
-                            @Override
-                            public void onError(MsalException ex) {
-                                Logger.error("Unable to acquire token interactively", ex);
-                                callback.tokenReceived(null);
-                            }
-                        }
-                );
+                    @Override
+                    public void onError(MsalException ex) {
+                        Logger.error("Unable to acquire token interactively", ex);
+                        callback.tokenReceived(null);
+                    }
+                }
+            );
 
         if (result.getCurrentAccount() != null) {
             // Set loginHint otherwise MSAL throws an exception because of mismatched account
@@ -184,7 +183,6 @@ public class MsAuthPlugin extends Plugin {
         }
 
         context.acquireToken(params.build());
-
     }
 
     private ISingleAccountPublicClientApplication createContextFromPluginCall(PluginCall call)
@@ -207,8 +205,10 @@ public class MsAuthPlugin extends Plugin {
             authorityType = AuthorityType.AAD;
         } else if (AuthorityType.B2C.name().equals(authorityTypeString)) {
             authorityType = AuthorityType.B2C;
+        } else if (AuthorityType.CIAM.name().equals(authorityTypeString)) {
+            authorityType = AuthorityType.CIAM;
         } else {
-            call.reject("Invalid authorityType specified. Only AAD and B2C are supported.");
+            call.reject("Invalid authorityType specified. Only AAD, B2C and CIAM are supported.");
             return null;
         }
 
@@ -243,6 +243,9 @@ public class MsAuthPlugin extends Plugin {
                 authorityConfig.put("type", AuthorityType.B2C.name());
                 authorityConfig.put("authority_url", authorityUrl);
                 authorityConfig.put("default", "true");
+                break;
+            case CIAM:
+                authorityConfig.put("type", AuthorityType.CIAM.name()).put("authority_url", authorityUrl);
                 break;
         }
 

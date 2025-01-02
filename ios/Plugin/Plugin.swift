@@ -131,8 +131,8 @@ public class MsAuthPlugin: CAPPlugin {
         let authorityURL = call.getString("authorityUrl")
         let authorityType = call.getString("authorityType") ?? "AAD"
 
-        if authorityType != "AAD" && authorityType != "B2C" {
-            call.reject("authorityType must be one of 'AAD' or 'B2C'")
+        if authorityType != "AAD" && authorityType != "B2C" && authorityType != "CIAM" {
+            call.reject("authorityType must be one of 'AAD' or 'B2C' or 'CIAM'")
             return nil
         }
 
@@ -154,7 +154,7 @@ public class MsAuthPlugin: CAPPlugin {
         }
 
         do {
-            let authority = authorityType == .aad
+            let authority = authorityType == .aad || authorityType == .ciam
                 ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
 
             if domainHint != nil {
@@ -302,6 +302,7 @@ public class MsAuthPlugin: CAPPlugin {
 enum AuthorityType: String {
     case aad
     case b2c
+    case ciam
 }
 
 extension UIApplicationDelegate {

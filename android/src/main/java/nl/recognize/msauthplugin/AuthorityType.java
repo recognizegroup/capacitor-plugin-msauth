@@ -2,5 +2,6 @@ package nl.recognize.msauthplugin;
 
 public enum AuthorityType {
     AAD,
-    B2C
+    B2C,
+    CIAM
 }
