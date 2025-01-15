@@ -16,6 +16,24 @@ public class MsAuthPlugin: CAPPlugin {
 
         let scopes = call.getArray("scopes", String.self) ?? []
 
+        var promptType: MSALPromptType = .selectAccount
+        if let prompt = call.getString("prompt")?.lowercased() {
+            switch prompt {
+            case "select_account":
+                promptType = .selectAccount
+            case "login":
+                promptType = .login
+            case "consent":
+                promptType = .consent
+            case "none":
+                promptType = .promptIfNecessary
+            case "create":
+                promptType = .create
+            default:
+                print("Unrecognized prompt option: \(prompt)")
+            }
+        }
+
         let completion: (MSALResult?) -> Void = { msalResult in
             guard let result = msalResult else {
                 call.reject("Unable to obtain access token")
@@ -31,7 +49,7 @@ public class MsAuthPlugin: CAPPlugin {
 
         loadCurrentAccount(applicationContext: context) { (account) in
             guard let currentAccount = account else {
-                self.acquireTokenInteractively(applicationContext: context, scopes: scopes, completion: completion)
+                self.acquireTokenInteractively(applicationContext: context, scopes: scopes, promptType: promptType, completion: completion)
                 return
             }
 
@@ -224,7 +242,7 @@ public class MsAuthPlugin: CAPPlugin {
 
     }
 
-    func acquireTokenInteractively(applicationContext: MSALPublicClientApplication, scopes: [String], completion: @escaping (MSALResult?) -> Void) {
+    func acquireTokenInteractively(applicationContext: MSALPublicClientApplication, scopes: [String], promptType: MSALPromptType, completion: @escaping (MSALResult?) -> Void) {
         guard let bridgeViewController = bridge?.viewController else {
             print("Unable to get Capacitor bridge.viewController")
 
@@ -235,7 +253,7 @@ public class MsAuthPlugin: CAPPlugin {
         let wvParameters = MSALWebviewParameters(authPresentationViewController: bridgeViewController)
         let parameters = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: wvParameters)
 
-        parameters.promptType = .selectAccount
+        parameters.promptType = promptType
 
         applicationContext.acquireToken(with: parameters) { (result, error) in
             if let error = error {
