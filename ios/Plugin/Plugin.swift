@@ -286,7 +286,7 @@ public class MsAuthPlugin: CAPPlugin {
 
                     if nsError.code == MSALError.interactionRequired.rawValue {
                         DispatchQueue.main.async {
-                            self.acquireTokenInteractively(applicationContext: applicationContext, scopes: scopes, completion: completion)
+                            self.acquireTokenInteractively(applicationContext: applicationContext, scopes: scopes, promptType: .selectAccount, completion: completion)
                         }
                         return
                     }
