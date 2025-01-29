@@ -48,9 +48,34 @@ public class MsAuthPlugin extends Plugin {
                 return;
             }
 
+            Prompt prompt = Prompt.SELECT_ACCOUNT;
+            if (call.hasOption("prompt")) {
+                switch (call.getString("prompt").toLowerCase()) {
+                    case "select_account":
+                        prompt = Prompt.SELECT_ACCOUNT;
+                        break;
+                    case "login":
+                        prompt = Prompt.LOGIN;
+                        break;
+                    case "consent":
+                        prompt = Prompt.CONSENT;
+                        break;
+                    case "none":
+                        prompt = Prompt.WHEN_REQUIRED;
+                        break;
+                    case "create":
+                        prompt = Prompt.CREATE;
+                        break;
+                    default:
+                        Logger.warn("Unrecognized prompt option: " + call.getString("prompt"));
+                        break;
+                }
+            }
+
             this.acquireToken(
                     context,
                     call.getArray("scopes").toList(),
+                    prompt,
                     tokenResult -> {
                         if (tokenResult != null) {
                             JSObject result = new JSObject();
@@ -114,13 +139,14 @@ public class MsAuthPlugin extends Plugin {
         return context.getConfiguration().getDefaultAuthority().getAuthorityURL().toString();
     }
 
-    private void acquireToken(ISingleAccountPublicClientApplication context, List<String> scopes, final TokenResultCallback callback)
+    private void acquireToken(ISingleAccountPublicClientApplication context, List<String> scopes, Prompt prompt, final TokenResultCallback callback)
         throws MsalException, InterruptedException {
         String authority = getAuthorityUrl(context);
 
         ICurrentAccountResult result = context.getCurrentAccount();
         if (result.getCurrentAccount() != null) {
             try {
+
                 Logger.info("Starting silent login flow");
                 AcquireTokenSilentParameters.Builder builder = new AcquireTokenSilentParameters.Builder()
                     .withScopes(scopes)
@@ -148,7 +174,7 @@ public class MsAuthPlugin extends Plugin {
         AcquireTokenParameters.Builder params = new AcquireTokenParameters.Builder()
             .startAuthorizationFromActivity(this.getActivity())
             .withScopes(scopes)
-            .withPrompt(Prompt.SELECT_ACCOUNT)
+            .withPrompt(prompt)
             .withCallback(
                 new AuthenticationCallback() {
                     @Override
