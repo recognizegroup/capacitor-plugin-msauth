@@ -5,6 +5,7 @@ import type { BaseOptions, MsAuthPlugin } from './definitions';
 
 interface WebBaseOptions extends BaseOptions {
   redirectUri?: string;
+  state?: string;
 }
 
 interface WebLoginOptions extends WebBaseOptions {
@@ -56,6 +57,7 @@ export class MsAuth extends WebPlugin implements MsAuthPlugin {
         authority: options.authorityUrl ?? `https://login.microsoftonline.com/${options.tenant ?? 'common'}`,
         knownAuthorities: options.knownAuthorities,
         redirectUri: options.redirectUri ?? this.getCurrentUrl(),
+        state: options.state,
       },
       cache: {
         cacheLocation: 'localStorage',
