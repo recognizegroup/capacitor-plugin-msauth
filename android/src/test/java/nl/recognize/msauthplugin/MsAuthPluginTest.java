@@ -15,9 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
-import com.microsoft.identity.client.IAccount;
-import com.microsoft.identity.client.IAuthenticationResult;
-import com.microsoft.identity.client.ISingleAccountPublicClientApplication;
+import com.microsoft.identity.client.*;
 import com.microsoft.identity.client.exception.MsalException;
 import java.io.File;
 import java.util.List;
@@ -103,6 +101,11 @@ class MsAuthPluginTest {
             ID_TOKEN,
             new String[] { "mocked-scope", "openid", "profile" }
         );
+        ICurrentAccountResult currentAccountResult = new CurrentAccountResult(result.getAccount(), null, true);
+        when(
+                singleAccountPublicClientApplication.getCurrentAccount()
+        ).thenReturn(currentAccountResult);
+
         when(
             singleAccountPublicClientApplication.acquireTokenSilent(
                 argThat(
