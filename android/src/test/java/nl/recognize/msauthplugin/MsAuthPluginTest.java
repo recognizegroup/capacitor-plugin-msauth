@@ -59,38 +59,38 @@ class MsAuthPluginTest {
     void setUp() throws MsalException, InterruptedException {
         reset(mockedContext, mockedActivity, publicClientApplicationFactoryMock, singleAccountPublicClientApplication);
 
-        when(publicClientApplicationFactoryMock.createSingleAccountPublicClientApplication(any(Context.class), any(File.class)))
-            .thenReturn(singleAccountPublicClientApplication);
+        when(publicClientApplicationFactoryMock.createSingleAccountPublicClientApplication(any(Context.class), any(File.class))).thenReturn(
+            singleAccountPublicClientApplication
+        );
 
-        plugin =
-            new MsAuthPlugin(publicClientApplicationFactoryMock) {
-                final Context applicationContext = mock(Context.class);
+        plugin = new MsAuthPlugin(publicClientApplicationFactoryMock) {
+            final Context applicationContext = mock(Context.class);
 
-                @Override
-                public Context getContext() {
-                    when(mockedContext.getApplicationContext()).thenReturn(applicationContext);
+            @Override
+            public Context getContext() {
+                when(mockedContext.getApplicationContext()).thenReturn(applicationContext);
 
-                    return mockedContext;
-                }
+                return mockedContext;
+            }
 
-                @Override
-                public AppCompatActivity getActivity() {
-                    lenient().when(applicationContext.getPackageName()).thenReturn("nl.recognize.project-x");
-                    lenient().when(mockedActivity.getApplicationContext()).thenReturn(applicationContext);
+            @Override
+            public AppCompatActivity getActivity() {
+                lenient().when(applicationContext.getPackageName()).thenReturn("nl.recognize.project-x");
+                lenient().when(mockedActivity.getApplicationContext()).thenReturn(applicationContext);
 
-                    return mockedActivity;
-                }
+                return mockedActivity;
+            }
 
-                @Override
-                protected String getLogTag() {
-                    return "LogTag";
-                }
+            @Override
+            protected String getLogTag() {
+                return "LogTag";
+            }
 
-                @Override
-                protected String getAuthorityUrl(ISingleAccountPublicClientApplication context) {
-                    return AUTHORITY_URL;
-                }
-            };
+            @Override
+            protected String getAuthorityUrl(ISingleAccountPublicClientApplication context) {
+                return AUTHORITY_URL;
+            }
+        };
     }
 
     @Test
@@ -109,8 +109,7 @@ class MsAuthPluginTest {
                     parameters -> parameters.getScopes().equals(List.of("mocked-scope")) && parameters.getAuthority().equals(AUTHORITY_URL)
                 )
             )
-        )
-            .thenReturn(result);
+        ).thenReturn(result);
 
         ArgumentCaptor<JSObject> jsObjectCaptor = ArgumentCaptor.forClass(JSObject.class);
         doNothing().when(pluginCallMock).resolve(jsObjectCaptor.capture());
@@ -123,31 +122,31 @@ class MsAuthPluginTest {
         assertEquals("access-token", resolve.getString("accessToken"));
         assertEquals(ID_TOKEN, resolve.getString("idToken"));
 
-        verify(singleAccountPublicClientApplication)
-            .acquireTokenSilent(argThat(parameters -> parameters.getAuthority().equals(AUTHORITY_URL)));
+        verify(singleAccountPublicClientApplication).acquireTokenSilent(
+            argThat(parameters -> parameters.getAuthority().equals(AUTHORITY_URL))
+        );
     }
 
     private void initializePluginCallMockWithDefaults(PluginCall pluginCallMock) throws JSONException {
         when(pluginCallMock.getArray("scopes")).thenReturn(new JSArray(new String[] { "mocked-scope" }));
-        when(pluginCallMock.getString(any()))
-            .thenAnswer(
-                (Answer<String>) invocation -> {
-                    switch (invocation.getArgument(0).toString()) {
-                        case "clientId":
-                            return CLIENT_ID;
-                        case "domainHint":
-                            return DOMAIN_HINT;
-                        case "tenant":
-                            return TENANT;
-                        case "keyHash":
-                            return KEY_HASH;
-                        case "authorityUrl":
-                            return AUTHORITY_URL;
-                    }
-
-                    return null;
+        when(pluginCallMock.getString(any())).thenAnswer(
+            (Answer<String>) invocation -> {
+                switch (invocation.getArgument(0).toString()) {
+                    case "clientId":
+                        return CLIENT_ID;
+                    case "domainHint":
+                        return DOMAIN_HINT;
+                    case "tenant":
+                        return TENANT;
+                    case "keyHash":
+                        return KEY_HASH;
+                    case "authorityUrl":
+                        return AUTHORITY_URL;
                 }
-            );
+
+                return null;
+            }
+        );
         when(pluginCallMock.getString("authorityType", AuthorityType.AAD.name())).thenReturn("AAD");
     }
 

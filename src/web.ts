@@ -25,7 +25,7 @@ export class MsAuth extends WebPlugin implements MsAuthPlugin {
 
     try {
       return await this.acquireTokenSilently(context, options.scopes).catch(() =>
-        this.acquireTokenInteractively(context, options.scopes)
+        this.acquireTokenInteractively(context, options.scopes),
       );
     } catch (error) {
       console.error('MSAL: Error occurred while logging in', error);
