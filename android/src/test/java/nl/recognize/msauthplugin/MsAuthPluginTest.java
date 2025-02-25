@@ -102,9 +102,7 @@ class MsAuthPluginTest {
             new String[] { "mocked-scope", "openid", "profile" }
         );
         ICurrentAccountResult currentAccountResult = new CurrentAccountResult(result.getAccount(), null, true);
-        when(
-                singleAccountPublicClientApplication.getCurrentAccount()
-        ).thenReturn(currentAccountResult);
+        when(singleAccountPublicClientApplication.getCurrentAccount()).thenReturn(currentAccountResult);
 
         when(
             singleAccountPublicClientApplication.acquireTokenSilent(
