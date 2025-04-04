@@ -172,8 +172,15 @@ public class MsAuthPlugin: CAPPlugin {
         }
 
         do {
-            let authority = authorityType == .aad || authorityType == .ciam
-                ? try MSALAADAuthority(url: authorityURL) : try MSALB2CAuthority(url: authorityURL)
+            let authority: MSALAuthority
+            switch authorityType {
+            case .aad:
+                authority = try MSALAADAuthority(url: authorityURL)
+            case .b2c:
+                authority = try MSALB2CAuthority(url: authorityURL)
+            case .ciam:
+                authority = try MSALCIAMAuthority(url: authorityURL)
+            }
 
             if domainHint != nil {
                 print("Warning: domain hint is currently not supported on iOS.")
